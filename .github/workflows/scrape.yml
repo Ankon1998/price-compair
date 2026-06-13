@@ -1,0 +1,32 @@
+name: Hourly Price Scraper
+
+on:
+  schedule:
+    # Runs at minute 0 of every hour
+    - cron: '0 * * * *' 
+  workflow_dispatch: # This line gives you a "Run workflow" button to test it manually
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip' # Speeds up subsequent runs
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create Google Credentials File
+        # This securely takes the secret you pasted and reconstructs the file just for this run
+        run: |
+          echo '${{ secrets.GCP_CREDENTIALS }}' > credentials.json
+
+      - name: Execute Scraper
+        run: python scraper.py
